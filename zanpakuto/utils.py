@@ -3,9 +3,7 @@
 import six
 import lxml
 
-from lxml.html import fromstring
-from lxml.html.clean import clean_html
-from lxml import etree
+from cleaners import default_cleaner, tags_begin_paragraph
 
 
 def strip_html(html_excerpt):
@@ -16,33 +14,63 @@ def strip_html(html_excerpt):
     :returns:  str -- the stripped HTML
 
     """
-    tree = fromstring(html_excerpt)
-    tree = clean_html(tree)
+    tree = lxml.html.fromstring(html_excerpt)
+    tree = lxml.html.clean.clean_html(tree)
     text = tree.text_content()
     text = text.strip()
     return text
 
 
+def marks_new_paragraph(tag):
+    return tag in tags_begin_paragraph
+
+
 def simplify_html(html_excerpt, root=None):
 
+    # clean document
+    document = lxml.html.fromstring(html_excerpt)
+    cleaned_document = default_cleaner.clean_html(document)
+
+    # restructuring output
     if not root:
-        root = etree.Element("root")
+        root = lxml.etree.Element("root")
 
-    document = fromstring(html_excerpt)
+    subelements_iter = cleaned_document.iter()
+    previous_accum_text = ''
+    previous_tail = ''
 
-    subelements_iter = document.iter()
-    for current_element in subelements_iter:
-        p_text = ''
+    for cur_element in subelements_iter:
+        cur_tag = cur_element.tag
 
-        if current_element.text:
-            p_text = p_text + current_element.text
-        if current_element.tail:
-            p_text = p_text + current_element.tail
+        if previous_accum_text and marks_new_paragraph(cur_tag):
+            new_p = lxml.etree.SubElement(root, "p")
+            new_p.text = previous_accum_text
+            previous_accum_text = ''
 
-        if p_text:
-            new_p = etree.SubElement(root, "p")
-            new_p.text = p_text
+        if previous_tail:
+            new_p = lxml.etree.SubElement(root, "p")
+            new_p.text = previous_tail
+            previous_tail = ''
 
+        if cur_element.text:
+            previous_accum_text += cur_element.text
+
+        if cur_element.tail and not marks_new_paragraph(cur_tag):
+            previous_accum_text += cur_element.tail
+        elif cur_element.tail and marks_new_paragraph(cur_tag):
+            previous_tail = cur_element.tail
+
+    # for the possible last pieces of text
+    if previous_accum_text:
+        new_p = lxml.etree.SubElement(root, "p")
+        new_p.text = previous_accum_text
+
+    if previous_tail:
+        new_p = lxml.etree.SubElement(root, "p")
+        new_p.text = previous_tail
+        previous_tail = ''
+
+    # the concatenation of the children, to ignore outer tag
     output_text = six.u('').join(map(lxml.html.tostring, root.iterchildren()))
     return output_text
 
