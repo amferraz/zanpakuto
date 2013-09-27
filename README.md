@@ -10,9 +10,11 @@ portions of HTML containing text into a cleaner HTML.
 
 ### strip_html:
 
-    from zanpakuto import strip_html
-    html = "<h1>Some html with <i>italics</i> and <b>bold</b> tags."
-    print strip_html(html)
+```python
+from zanpakuto import strip_html
+html = "<h1>Some html with <i>italics</i> and <b>bold</b> tags."
+print strip_html(html)
+```
 
 It will output:
 
