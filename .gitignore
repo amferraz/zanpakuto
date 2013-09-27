@@ -5,3 +5,4 @@ env*
 dist
 *.egg
 *.egg-info
+.tox
