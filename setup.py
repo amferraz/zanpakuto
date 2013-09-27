@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 setup(
@@ -10,6 +10,6 @@ setup(
     author_email="amarquesferraz@gmail.com",
     description="A small utility to simplify HTML excerpts",
     url="https://github.com/amferraz/zanpakuto",
-    packages=find_packages(exclude=['tests']),
+    packages=['zanpakuto'],
     install_requires=['lxml==3.2.3']
 )
