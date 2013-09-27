@@ -5,7 +5,7 @@ import unittest
 from zanpakuto import strip_html
 
 
-class TestStripHtmlTags(unittest.TestCase):
+class TestStripHtmlExcerpt(unittest.TestCase):
 
     def assert_strip_html(self, html, expected_stripped_html):
         obtained_text = strip_html(html)
