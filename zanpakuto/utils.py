@@ -25,6 +25,11 @@ def marks_new_paragraph(tag):
     return tag in tags_begin_paragraph
 
 
+def append_element(text, tag, on_tree):
+    new_element = lxml.etree.SubElement(on_tree, tag)
+    new_element.text = text
+
+
 def simplify_html(html_excerpt, root=None):
 
     # clean document
@@ -36,39 +41,34 @@ def simplify_html(html_excerpt, root=None):
         root = lxml.etree.Element("root")
 
     subelements_iter = cleaned_document.iter()
-    previous_accum_text = ''
+    accum_text = ''
     previous_tail = ''
 
     for cur_element in subelements_iter:
         cur_tag = cur_element.tag
 
-        if previous_accum_text and marks_new_paragraph(cur_tag):
-            new_p = lxml.etree.SubElement(root, "p")
-            new_p.text = previous_accum_text
-            previous_accum_text = ''
+        if accum_text and marks_new_paragraph(cur_tag):
+            append_element(accum_text, 'p', root)
+            accum_text = ''
 
         if previous_tail:
-            new_p = lxml.etree.SubElement(root, "p")
-            new_p.text = previous_tail
+            append_element(previous_tail, 'p', root)
             previous_tail = ''
 
         if cur_element.text:
-            previous_accum_text += cur_element.text
+            accum_text += cur_element.text
 
         if cur_element.tail and not marks_new_paragraph(cur_tag):
-            previous_accum_text += cur_element.tail
+            accum_text += cur_element.tail
         elif cur_element.tail and marks_new_paragraph(cur_tag):
             previous_tail = cur_element.tail
 
     # for the possible last pieces of text
-    if previous_accum_text:
-        new_p = lxml.etree.SubElement(root, "p")
-        new_p.text = previous_accum_text
+    if accum_text:
+        append_element(accum_text, 'p', root)
 
     if previous_tail:
-        new_p = lxml.etree.SubElement(root, "p")
-        new_p.text = previous_tail
-        previous_tail = ''
+        append_element(previous_tail, 'p', root)
 
     # the concatenation of the children, to ignore outer tag
     output_text = six.u('').join(map(lxml.html.tostring, root.iterchildren()))

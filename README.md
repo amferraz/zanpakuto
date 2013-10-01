@@ -1,6 +1,6 @@
 # zanpakuto
 
-[![Build Status](https://travis-ci.org/amferraz/zanpakuto.png)](http://travis-ci.org/amferraz/zanpakuto)
+[![Build Status](https://travis-ci.org/amferraz/zanpakuto.png?branch=master)](http://travis-ci.org/amferraz/zanpakuto)
 
 zanpakuto is a small Python library that aims to simplify HTML excerpts. Its
 main objective is to normalize weird, deep-nested, non-semantic, stylish
