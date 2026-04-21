@@ -12,7 +12,7 @@ setup(
     download_url='https://github.com/amferraz/zanpakuto/archive/0.2.zip',
     packages=['zanpakuto'],
     install_requires=[
-        'lxml==3.2.3',
+        'lxml==6.1.0',
         'six==1.4.1'
     ],
 )
